@@ -48,11 +48,8 @@ class Audio
 		cancelTween(sound);
 
 		var tweenEase = (ease != null) ? ease : FlxEase.linear;
-		var tween = FlxTween.num(sound.volume, targetVolume, duration, {
+		var tween = FlxTween.tween(sound, {volume: targetVolume}, duration, {
 			ease: tweenEase,
-			onUpdate: function(twn:FlxTween) {
-				sound.volume = twn.value;
-			},
 			onComplete: function(twn:FlxTween) {
 				_activeTweens.remove(sound);
 				if (targetVolume <= 0) sound.stop();
