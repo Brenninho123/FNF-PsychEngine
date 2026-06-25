@@ -157,25 +157,37 @@ class MainMenuState extends MusicBeatState
 		if (!selectedSomethin)
 		{
 			updateInput();
-			updateMouse(elapsed);
+			updateMouseAndTouch(elapsed);
 			updateColumnNavigation();
 
 			if (controls.BACK)
 			{
 				selectedSomethin = true;
-				FlxG.mouse.visible = false;
+				#if desktop FlxG.mouse.visible = false; #end
 				FlxG.sound.play(Paths.sound('cancelMenu'));
 				MusicBeatState.switchState(new TitleState());
 			}
 
-			if (controls.ACCEPT || (FlxG.mouse.overlaps(menuItems, FlxG.camera) && FlxG.mouse.justPressed && allowMouse))
+			var clickedItem:Bool = false;
+			#if mobile
+			for (touch in FlxG.touches.list)
+			{
+				if (touch.justPressed && touch.overlaps(menuItems, FlxG.camera))
+				{
+					clickedItem = true;
+					break;
+				}
+			}
+			#end
+
+			if (controls.ACCEPT || clickedItem || (FlxG.mouse.overlaps(menuItems, FlxG.camera) && FlxG.mouse.justPressed && allowMouse))
 			{
 				selectItem();
 			}
-			else if (controls.justPressed('debug_1') || touchPad.buttonE.justPressed)
+			else if (controls.justPressed('debug_1') || (touchPad != null && touchPad.buttonE.justPressed))
 			{
 				selectedSomethin = true;
-				FlxG.mouse.visible = false;
+				#if desktop FlxG.mouse.visible = false; #end
 				MusicBeatState.switchState(new MasterEditorMenu());
 			}
 		}
@@ -192,28 +204,54 @@ class MainMenuState extends MusicBeatState
 			changeItem(1);
 	}
 
-	function updateMouse(elapsed:Float)
+	function updateMouseAndTouch(elapsed:Float)
 	{
-		if (allowMouse && ((FlxG.mouse.deltaScreenX != 0 && FlxG.mouse.deltaScreenY != 0) || FlxG.mouse.justPressed))
+		var isMoving:Bool = false;
+		var inputX:Float = 0;
+		var inputY:Float = 0;
+		var inputJustPressed:Bool = false;
+
+		#if mobile
+		for (touch in FlxG.touches.list)
 		{
-			allowMouse = false;
+			isMoving = true;
+			inputX = touch.screenX;
+			inputY = touch.screenY;
+			inputJustPressed = touch.justPressed;
+		}
+		#end
+
+		#if desktop
+		if ((FlxG.mouse.deltaScreenX != 0 || FlxG.mouse.deltaScreenY != 0) || FlxG.mouse.justPressed)
+		{
+			isMoving = true;
+			inputX = FlxG.mouse.screenX;
+			inputY = FlxG.mouse.screenY;
+			inputJustPressed = FlxG.mouse.justPressed;
 			FlxG.mouse.visible = true;
 			timeNotMoving = 0;
+		}
+		else
+		{
+			timeNotMoving += elapsed;
+			if (timeNotMoving > 2) FlxG.mouse.visible = false;
+		}
+		#end
 
+		if (isMoving)
+		{
 			var selectedItem:FlxSprite = getActiveItem();
 
-			if (leftItem != null && FlxG.mouse.overlaps(leftItem))
+			if (leftItem != null && (FlxG.mouse.overlaps(leftItem) #if mobile || checkTouchOverlap(leftItem) #end))
 			{
-				allowMouse = true;
 				if (selectedItem != leftItem)
 				{
 					curColumn = LEFT;
 					changeItem();
 				}
 			}
-			else if (rightItem != null && FlxG.mouse.overlaps(rightItem))
+			else if (rightItem != null && (FlxG.mouse.overlaps(rightItem) #if mobile || checkTouchOverlap(rightItem) #end))
 			{
-				allowMouse = true;
 				if (selectedItem != rightItem)
 				{
 					curColumn = RIGHT;
@@ -227,14 +265,13 @@ class MainMenuState extends MusicBeatState
 				for (i in 0...optionShit.length)
 				{
 					var memb:FlxSprite = menuItems.members[i];
-					if (memb != null && FlxG.mouse.overlaps(memb))
+					if (memb != null && (FlxG.mouse.overlaps(memb) #if mobile || checkTouchOverlap(memb) #end))
 					{
-						var distance:Float = Math.sqrt(Math.pow(memb.getGraphicMidpoint().x - FlxG.mouse.screenX, 2) + Math.pow(memb.getGraphicMidpoint().y - FlxG.mouse.screenY, 2));
+						var distance:Float = Math.sqrt(Math.pow(memb.getGraphicMidpoint().x - inputX, 2) + Math.pow(memb.getGraphicMidpoint().y - inputY, 2));
 						if (dist < 0 || distance < dist)
 						{
 							dist = distance;
 							distItem = i;
-							allowMouse = true;
 						}
 					}
 				}
@@ -247,12 +284,19 @@ class MainMenuState extends MusicBeatState
 				}
 			}
 		}
-		else
-		{
-			timeNotMoving += elapsed;
-			if (timeNotMoving > 2) FlxG.mouse.visible = false;
-		}
 	}
+
+	#if mobile
+	function checkTouchOverlap(sprite:FlxSprite):Bool
+	{
+		for (touch in FlxG.touches.list)
+		{
+			if (touch.overlaps(sprite, FlxG.camera))
+				return true;
+		}
+		return false;
+	}
+	#end
 
 	function updateColumnNavigation()
 	{
@@ -298,7 +342,7 @@ class MainMenuState extends MusicBeatState
 	{
 		FlxG.sound.play(Paths.sound('confirmMenu'));
 		selectedSomethin = true;
-		FlxG.mouse.visible = false;
+		#if desktop FlxG.mouse.visible = false; #end
 
 		if (ClientPrefs.data.flashing)
 			FlxFlicker.flicker(magenta, 1.1, 0.15, false);
