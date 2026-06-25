@@ -17,7 +17,7 @@
 
 	<!--Minimum without FLX_NO_GAMEPAD: 11.8, without FLX_NO_NATIVE_CURSOR: 11.2-->
 	<set name="SWF_VERSION" value="11.8" />
-
+	
 	<!-- ______________________ PSYCH ENGINE CUSTOMIZATION ______________________ -->
 
 	<define name="MODS_ALLOWED" if="desktop || mobile" />
@@ -29,16 +29,15 @@
 	<define name="COPYSTATE_ALLOWED" if="MODS_ALLOWED mobile"/>
 	<define name="IRIS_DEBUG"/>
 
-	<!-- Moved out of <section if="officialBuild"> so videos actually get bundled on fork/mod builds -->
+	<define name="BASE_GAME_FILES" />
 	<define name="VIDEOS_ALLOWED" if="desktop || mobile" unless="32bits"/>
-
+	
 	<define name="MULTITHREADED_LOADING" if="cpp" /> <!-- UNCOMMENTING THIS LINE WILL ENABLE MULTITHREADED LOADING, WHICH IMPROVES LOADING TIMES, BUT WITH A LOW CHANCE FOR THE GAME FREEZE ON SONG LOAD -->
 	<define name="SHOW_LOADING_SCREEN" />
 	<define name="PSYCH_WATERMARKS"/> <!-- DELETE THIS TO REMOVE THE PSYCH LOGO FROM LOADING SCREEN -->
 
 	<section if="officialBuild">
-		<define name="TITLE_SCREEN_EASTER_EGG"/>
-		<define name="BASE_GAME_FILES" />
+		<define name="TITLE_SCREEN_EASTER_EGG"/> <!-- IF YOU WANT TO USE VIDEOS ON YOUR SOURCE MOD, GET THIS LINE OUTSIDE OF THE SECTION -->
 	</section>
 
 	<!-- ____________________________ Window Settings ___________________________ -->
@@ -102,7 +101,7 @@
 		<assets path='example_mods' rename='mods' embed='false' />
 		<assets path='list.txt' rename='modsList.txt' />
 	</section>
-
+	
 	<assets path='art/readme.txt' rename='do NOT readme.txt' unless="mobile" />
 
 	<!-- OpenAL config -->
@@ -134,7 +133,7 @@
 	<haxedef name="HXVLC_NO_SHARE_DIRECTORY" if="VIDEOS_ALLOWED" />
 	<haxedef name="HXVLC_EXPERIMENTAL_WINDOWSARM" if="windows HXCPP_ARM64" />
 	<define name="x86_BUILD" if="32bits" />
-
+	
 	<!-- ______________________________ Haxedefines _____________________________ -->
 
 	<!--Enable the Flixel core recording system-->
@@ -160,16 +159,16 @@
 
 	<!--Disable the Flixel core focus lost screen-->
 	<haxedef name="FLX_NO_FOCUS_LOST_SCREEN" />
-
+	
 	<!-- Show debug traces for hxCodec -->
 	<haxedef name="HXC_DEBUG_TRACE" if="debug" />
-
+	
 	<!--Disable the Flixel core debugger. Automatically gets set whenever you compile in release mode!-->
 	<haxedef name="FLX_NO_DEBUG" unless="debug" />
 
 	<!--Enable this for Nape release builds for a serious peformance improvement-->
 	<haxedef name="NAPE_RELEASE_BUILD" unless="debug" />
-
+	
 	<!--Used for crash handler-->
 	<section if="cpp">
 		<haxedef name="HXCPP_CHECK_POINTER" />
@@ -180,7 +179,7 @@
 
 	<!-- For all Windows platforms -->
 	<app path="export\32bit\windows\bin" if="32bits" />
-
+	
 	<!--Disable deprecated warnings-->
 	<haxedef name='no-deprecation-warnings' />
 
@@ -207,7 +206,7 @@
 	<!-- _________________________________ Custom _______________________________ -->
 
 	<assets path='art/icons/iconOG.png' rename='icon.png' if="linux || mac" />
-
+	
 	<icon path="art/icons/icon16.png" size='16'/>
 	<icon path="art/icons/icon32.png" size='32'/>
 	<icon path="art/icons/icon64.png" size='64'/>
