@@ -28,14 +28,8 @@ jobs:
             os: macos-15
             buildArgs: mac
             artifactName: MacOS
-            artifactPath: export/release/macos/bin/*
-          - name: Android V7
-            os: macos-15
-            buildArgs: "android -ONLY_ARMV7"
-            artifactName: Android-ARMv7
-            artifactPath: "export/release/android/bin/app/build/outputs/apk/release/*.apk"
-
-          - name: Android V64
+            artifactPath: export/release/macos/bin/*         
+          - name: Android
             os: macos-15
             buildArgs: "android -ONLY_ARM64"
             artifactName: Android-ARM64
