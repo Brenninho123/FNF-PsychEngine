@@ -43,7 +43,11 @@ class FPSCounter extends TextField
 		final memoryText:String = flixel.util.FlxStringUtil.formatBytes(memoryMegas);
 		final taskText:String = flixel.util.FlxStringUtil.formatBytes(totalMemoryMegas);
 
-		text = 'FPS: $currentFPS • Memory: $memoryText • Task: $taskText';
+		var newText:String = 'FPS: $currentFPS • Memory: $memoryText • Task: $taskText';
+		if (ClientPrefs.data.devMode)
+			newText += '\nDev Mode';
+
+		text = newText;
 		textColor = currentFPS < FlxG.stage.window.frameRate * 0.5 ? 0xFFFF0000 : 0xFFFFFFFF;
 	}
 
