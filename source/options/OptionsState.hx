@@ -5,6 +5,9 @@ import backend.StageData;
 
 class OptionsState extends MusicBeatState
 {
+	static final OPTIONS_SCALE:Float = 0.8;
+	static final OPTIONS_SPACING:Float = 92 * OPTIONS_SCALE;
+
 	var options:Array<String> = [
 		'Note Colors',
 		'Controls',
@@ -13,7 +16,7 @@ class OptionsState extends MusicBeatState
 		'Visuals',
 		'Gameplay'
 		#if TRANSLATIONS_ALLOWED , 'Language' #end
-		,'Mobile Options'
+	#if mobile 	,'Mobile Options' #end
 		,'Misc'
 	];
 	private var grpOptions:FlxTypedGroup<Alphabet>;
@@ -82,14 +85,21 @@ class OptionsState extends MusicBeatState
 		for (num => option in options)
 		{
 			var optionText:Alphabet = new Alphabet(0, 0, Language.getPhrase('options_$option', option), true);
+			optionText.scale.set(OPTIONS_SCALE, OPTIONS_SCALE);
+			optionText.updateHitbox();
 			optionText.screenCenter();
-			optionText.y += (92 * (num - (options.length / 2))) + 45;
+			optionText.y += (OPTIONS_SPACING * (num - (options.length / 2))) + 45;
 			grpOptions.add(optionText);
 		}
 
 		selectorLeft = new Alphabet(0, 0, '>', true);
+		selectorLeft.scale.set(OPTIONS_SCALE, OPTIONS_SCALE);
+		selectorLeft.updateHitbox();
 		add(selectorLeft);
+
 		selectorRight = new Alphabet(0, 0, '<', true);
+		selectorRight.scale.set(OPTIONS_SCALE, OPTIONS_SCALE);
+		selectorRight.updateHitbox();
 		add(selectorRight);
 
 		changeSelection();
@@ -158,9 +168,9 @@ class OptionsState extends MusicBeatState
 			if (item.targetY == 0)
 			{
 				item.alpha = 1;
-				selectorLeft.x = item.x - 63;
+				selectorLeft.x = item.x - (63 * OPTIONS_SCALE);
 				selectorLeft.y = item.y;
-				selectorRight.x = item.x + item.width + 15;
+				selectorRight.x = item.x + item.width + (15 * OPTIONS_SCALE);
 				selectorRight.y = item.y;
 			}
 		}
