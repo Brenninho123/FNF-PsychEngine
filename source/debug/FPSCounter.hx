@@ -3,22 +3,14 @@ package debug;
 import flixel.FlxG;
 import openfl.Lib;
 import haxe.Timer;
-import openfl.display.Shape;
-import openfl.display.Sprite;
 import openfl.text.TextField;
-import openfl.text.TextFieldAutoSize;
 import openfl.text.TextFormat;
 
-class FPSCounter extends Sprite
+class FPSCounter extends TextField
 {
 	public var currentFPS(default, null):Int = 0;
 	public var memoryMegas(get, never):Float;
-
-	@:noCompletion private var textField:TextField;
-	@:noCompletion private var barShape:Shape;
-	@:noCompletion private var barColor:Int;
-	@:noCompletion private var barHeight:Float = 2;
-	@:noCompletion private var barPadding:Float = 2;
+	public var totalMemoryMegas(get, never):Float;
 
 	@:noCompletion private var times:Array<Float>;
 	@:noCompletion private var lastFramerateUpdateTime:Float;
@@ -27,26 +19,18 @@ class FPSCounter extends Sprite
 	@:noCompletion private var prevTime:Int;
 	@:noCompletion private var deltaTimeout:Float = 0.0;
 
-	public function new(x:Float = 10, y:Float = 10, color:Int = 0x000000, barColor:Int = 0x000000)
+	public function new(x:Float = 10, y:Float = 10, color:Int = 0x000000)
 	{
 		super();
 
-		this.barColor = barColor;
-
-		textField = new TextField();
-		textField.selectable = false;
-		textField.mouseEnabled = false;
-		textField.multiline = false;
-		textField.autoSize = TextFieldAutoSize.LEFT;
-		textField.defaultTextFormat = new TextFormat("_sans", 14, color);
-		textField.text = "FPS: ";
-
-		barShape = new Shape();
-
-		addChild(barShape);
-		addChild(textField);
-
 		positionFPS(x, y);
+
+		selectable = false;
+		mouseEnabled = false;
+		multiline = true;
+		defaultTextFormat = new TextFormat("_sans", 14, color);
+		width = FlxG.width;
+		text = "FPS: ";
 
 		times = [];
 		lastFramerateUpdateTime = Timer.stamp();
@@ -57,18 +41,10 @@ class FPSCounter extends Sprite
 	public dynamic function updateText():Void
 	{
 		final memoryText:String = flixel.util.FlxStringUtil.formatBytes(memoryMegas);
-		textField.text = 'FPS: $currentFPS • Memory: $memoryText';
-		textField.textColor = currentFPS < FlxG.stage.window.frameRate * 0.5 ? 0xFFFF0000 : 0xFFFFFFFF;
+		final taskText:String = flixel.util.FlxStringUtil.formatBytes(totalMemoryMegas);
 
-		drawBar();
-	}
-
-	private function drawBar():Void
-	{
-		barShape.graphics.clear();
-		barShape.graphics.beginFill(barColor);
-		barShape.graphics.drawRect(0, textField.height + barPadding, textField.width, barHeight);
-		barShape.graphics.endFill();
+		text = 'FPS: $currentFPS • Memory: $memoryText • Task: $taskText';
+		textColor = currentFPS < FlxG.stage.window.frameRate * 0.5 ? 0xFFFF0000 : 0xFFFFFFFF;
 	}
 
 	private override function __enterFrame(deltaTime:Float):Void
@@ -122,6 +98,15 @@ class FPSCounter extends Sprite
 	{
 		#if cpp
 		return cpp.vm.Gc.memInfo64(cpp.vm.Gc.MEM_INFO_USAGE);
+		#else
+		return 0.0;
+		#end
+	}
+
+	inline function get_totalMemoryMegas():Float
+	{
+		#if cpp
+		return cpp.vm.Gc.memInfo64(cpp.vm.Gc.MEM_INFO_RESERVED);
 		#else
 		return 0.0;
 		#end
