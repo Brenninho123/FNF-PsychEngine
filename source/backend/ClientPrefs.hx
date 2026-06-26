@@ -23,6 +23,8 @@ import states.TitleState;
 	public var vsync:Bool = false;
 	public var gameOverVibration:Bool = false;
 	public var fpsRework:Bool = false;
+ public var devMode:Bool = false;
+ public var streamingMode = false;
 	
 	public var downScroll:Bool = false;
 	public var middleScroll:Bool = false;
