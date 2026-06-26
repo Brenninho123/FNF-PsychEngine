@@ -26,14 +26,9 @@ import lime.system.System as LimeSystem;
 import haxe.io.Path;
 import haxe.Exception;
 
-/**
- * A storage class for mobile.
- * @author Karim Akra and Lily Ross (mcagabe19)
- */
 class StorageUtil
 {
 	#if sys
-	// root directory, used for handling the saved storage type and path
 	public static final rootDir:String = LimeSystem.applicationStorageDirectory;
 
 	public static function getStorageDirectory(?force:Bool = false):String
@@ -66,10 +61,10 @@ class StorageUtil
 				CoolUtil.showPopUp('$fileName has been saved.', "Success!");
 		}
 		catch (e:Exception)
+		{
 			if (alert)
-				CoolUtil.showPopUp('$fileName couldn\'t be saved.\n(${e.message})', "Error!")
-			else
-				trace('$fileName couldn\'t be saved. (${e.message})');
+				CoolUtil.showPopUp('$fileName couldn\'t be saved.\n(${e.message})', "Error!");
+		}
 	}
 
 	#if android
@@ -87,12 +82,12 @@ class StorageUtil
 			AndroidSettings.requestSetting('MANAGE_APP_ALL_FILES_ACCESS_PERMISSION');
 		}
 
-		if ((AndroidVersion.SDK_INT >= AndroidVersionCode.TIRAMISU
-			&& !AndroidPermissions.getGrantedPermissions().contains('android.permission.READ_MEDIA_IMAGES'))
-			|| (AndroidVersion.SDK_INT < AndroidVersionCode.TIRAMISU
-				&& !AndroidPermissions.getGrantedPermissions().contains('android.permission.READ_EXTERNAL_STORAGE')))
-			CoolUtil.showPopUp('If you accepted the permissions you are all good!' + '\nIf you didn\'t then expect a crash' + '\nPress OK to see what happens',
-				'Notice!');
+		var hasMediaAccess:Bool = AndroidVersion.SDK_INT >= AndroidVersionCode.TIRAMISU
+			? AndroidPermissions.getGrantedPermissions().contains('android.permission.READ_MEDIA_IMAGES')
+			: AndroidPermissions.getGrantedPermissions().contains('android.permission.READ_EXTERNAL_STORAGE');
+
+		if (!hasMediaAccess)
+			CoolUtil.showPopUp('If you accepted the permissions you are all good!' + '\nIf you didn\'t then expect a crash' + '\nPress OK to see what happens', 'Notice!');
 
 		try
 		{
@@ -106,7 +101,7 @@ class StorageUtil
 		}
 	}
 
-	public static function checkExternalPaths(?splitStorage = false):Array<String>
+	public static function checkExternalPaths(?splitStorage:Bool = false):Array<String>
 	{
 		var process = new Process('grep -o "/storage/....-...." /proc/mounts | paste -sd \',\'');
 		var paths:String = process.stdout.readAll().toString();
