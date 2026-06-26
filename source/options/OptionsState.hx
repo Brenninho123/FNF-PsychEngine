@@ -14,6 +14,7 @@ class OptionsState extends MusicBeatState
 		'Gameplay'
 		#if TRANSLATIONS_ALLOWED , 'Language' #end
 		,'Mobile Options'
+		,'Misc'
 	];
 	private var grpOptions:FlxTypedGroup<Alphabet>;
 	private static var curSelected:Int = 0;
@@ -43,6 +44,8 @@ class OptionsState extends MusicBeatState
 				openSubState(new mobile.options.MobileOptionsSubState());
 			case 'Language':
 				openSubState(new options.LanguageSubState());
+			case 'Misc':
+				openSubState(new options.MiscSubState());
 		}
 	}
 
@@ -121,7 +124,7 @@ class OptionsState extends MusicBeatState
 				changeSelection(-1);
 			if (controls.UI_DOWN_P)
 				changeSelection(1);
-			
+
 			if (touchPad.buttonC.justPressed || FlxG.keys.justPressed.CONTROL && controls.mobileC)
 			{
 				persistentUpdate = false;
@@ -143,7 +146,7 @@ class OptionsState extends MusicBeatState
 			else if (controls.ACCEPT) openSelectedSubstate(options[curSelected]);
 		}
 	}
-	
+
 	function changeSelection(change:Int = 0)
 	{
 		curSelected = FlxMath.wrap(curSelected + change, 0, options.length - 1);
