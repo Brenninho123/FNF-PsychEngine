@@ -1,13 +1,15 @@
 package options;
 
+import flixel.tweens.FlxEase;
+import flixel.tweens.FlxTween;
 import states.MainMenuState;
 import backend.StageData;
 
 class OptionsState extends MusicBeatState
 {
-	static final OPTIONS_SCALE:Float = 0.8;
-	static final OPTIONS_SPACING:Float = 92 * OPTIONS_SCALE;
-	static final OPTIONS_OFFSET:Float = 45 * OPTIONS_SCALE;
+	static final BASE_SPACING:Float = 92;
+	static final MIN_SPACING:Float = 50;
+	static final USABLE_HEIGHT:Float = 560;
 
 	var options:Array<String> = [
 		'Note Colors',
@@ -19,8 +21,10 @@ class OptionsState extends MusicBeatState
 		#if TRANSLATIONS_ALLOWED , 'Language' #end
 	#if mobile 	,'Mobile Options' #end
 		,'Misc'
-		,'Advanced'
 	];
+
+	var optionsSpacing:Float = BASE_SPACING;
+
 	private var grpOptions:FlxTypedGroup<Alphabet>;
 	private static var curSelected:Int = 0;
 	public static var menuBG:FlxSprite;
@@ -51,8 +55,6 @@ class OptionsState extends MusicBeatState
 				openSubState(new options.LanguageSubState());
 			case 'Misc':
 				openSubState(new options.MiscSubState());
-			case 'Advanced':
-				openSubState(new options.AdvancedSubState());
 		}
 	}
 
@@ -64,6 +66,8 @@ class OptionsState extends MusicBeatState
 		#if DISCORD_ALLOWED
 		DiscordClient.changePresence("Options Menu", null);
 		#end
+
+		optionsSpacing = calculateSpacing();
 
 		var bg:FlxSprite = new FlxSprite().loadGraphic(Paths.image('menuDesat'));
 		bg.antialiasing = ClientPrefs.data.antialiasing;
@@ -89,21 +93,14 @@ class OptionsState extends MusicBeatState
 		for (num => option in options)
 		{
 			var optionText:Alphabet = new Alphabet(0, 0, Language.getPhrase('options_$option', option), true);
-			optionText.scale.set(OPTIONS_SCALE, OPTIONS_SCALE);
-			optionText.updateHitbox();
 			optionText.screenCenter();
-			optionText.y += (OPTIONS_SPACING * (num - (options.length / 2))) + OPTIONS_OFFSET;
+			optionText.y = positionForIndex(num, curSelected);
 			grpOptions.add(optionText);
 		}
 
 		selectorLeft = new Alphabet(0, 0, '>', true);
-		selectorLeft.scale.set(OPTIONS_SCALE, OPTIONS_SCALE);
-		selectorLeft.updateHitbox();
 		add(selectorLeft);
-
 		selectorRight = new Alphabet(0, 0, '<', true);
-		selectorRight.scale.set(OPTIONS_SCALE, OPTIONS_SCALE);
-		selectorRight.updateHitbox();
 		add(selectorRight);
 
 		changeSelection();
@@ -114,6 +111,20 @@ class OptionsState extends MusicBeatState
 		#end
 
 		super.create();
+	}
+
+	function calculateSpacing():Float
+	{
+		final neededHeight:Float = BASE_SPACING * options.length;
+		if (neededHeight <= USABLE_HEIGHT)
+			return BASE_SPACING;
+
+		return Math.max(MIN_SPACING, USABLE_HEIGHT / options.length);
+	}
+
+	function positionForIndex(num:Int, selected:Int):Float
+	{
+		return (FlxG.height / 2) + (optionsSpacing * (num - selected)) + 45;
 	}
 
 	override function closeSubState()
@@ -167,17 +178,24 @@ class OptionsState extends MusicBeatState
 
 		for (num => item in grpOptions.members)
 		{
-			item.targetY = num - curSelected;
-			item.alpha = 0.6;
-			if (item.targetY == 0)
+			final newY:Float = positionForIndex(num, curSelected);
+
+			FlxTween.cancelTweensOf(item);
+			FlxTween.tween(item, {y: newY}, 0.2, {ease: FlxEase.quartOut});
+			item.alpha = (num == curSelected) ? 1 : 0.6;
+
+			if (num == curSelected)
 			{
-				item.alpha = 1;
-				selectorLeft.x = item.x - (63 * OPTIONS_SCALE);
-				selectorLeft.y = item.y;
-				selectorRight.x = item.x + item.width + (15 * OPTIONS_SCALE);
-				selectorRight.y = item.y;
+				selectorLeft.x = item.x - 63;
+				selectorRight.x = item.x + item.width + 15;
+
+				FlxTween.cancelTweensOf(selectorLeft);
+				FlxTween.cancelTweensOf(selectorRight);
+				FlxTween.tween(selectorLeft, {y: newY}, 0.2, {ease: FlxEase.quartOut});
+				FlxTween.tween(selectorRight, {y: newY}, 0.2, {ease: FlxEase.quartOut});
 			}
 		}
+
 		FlxG.sound.play(Paths.sound('scrollMenu'));
 	}
 
