@@ -7,6 +7,7 @@ class OptionsState extends MusicBeatState
 {
 	static final OPTIONS_SCALE:Float = 0.8;
 	static final OPTIONS_SPACING:Float = 92 * OPTIONS_SCALE;
+	static final OPTIONS_OFFSET:Float = 45 * OPTIONS_SCALE;
 
 	var options:Array<String> = [
 		'Note Colors',
@@ -18,6 +19,7 @@ class OptionsState extends MusicBeatState
 		#if TRANSLATIONS_ALLOWED , 'Language' #end
 	#if mobile 	,'Mobile Options' #end
 		,'Misc'
+		,'Advanced'
 	];
 	private var grpOptions:FlxTypedGroup<Alphabet>;
 	private static var curSelected:Int = 0;
@@ -49,6 +51,8 @@ class OptionsState extends MusicBeatState
 				openSubState(new options.LanguageSubState());
 			case 'Misc':
 				openSubState(new options.MiscSubState());
+			case 'Advanced':
+				openSubState(new options.AdvancedSubState());
 		}
 	}
 
@@ -88,7 +92,7 @@ class OptionsState extends MusicBeatState
 			optionText.scale.set(OPTIONS_SCALE, OPTIONS_SCALE);
 			optionText.updateHitbox();
 			optionText.screenCenter();
-			optionText.y += (OPTIONS_SPACING * (num - (options.length / 2))) + 45;
+			optionText.y += (OPTIONS_SPACING * (num - (options.length / 2))) + OPTIONS_OFFSET;
 			grpOptions.add(optionText);
 		}
 
